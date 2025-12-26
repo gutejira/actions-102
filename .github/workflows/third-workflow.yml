@@ -1,0 +1,37 @@
+name: Third Workflow
+
+on:
+  push:
+
+jobs:
+  ascii_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Cowsay
+        run: sudo apt-get update && sudo apt-get install -y cowsay
+
+      - name: Generate ASCII Art
+        run: cowsay -f dragon "Run for the cover, I am dragon" > dragon.txt
+
+      - name: Test dragon.txt exists
+        run: |
+          if [ -f dragon.txt ]; then
+            echo "dragon.txt exists."
+          else
+            echo "dragon.txt does not exist."
+            exit 1
+          fi
+
+      - name: Display ASCII Art
+        run: cat dragon.txt
+
+      - name: Welcome, List and Read Files
+        run: |
+          # Execute commands sequentially
+          echo "My first GitHub Actions Workflow!"
+          ls -ltra
+          cat README.md
