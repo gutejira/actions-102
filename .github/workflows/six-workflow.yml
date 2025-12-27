@@ -12,9 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create dragon.txt
+      - name: Install cowsay
         run: |
-          echo "🐉 The dragon has been created!" > dragon.txt
+          sudo apt-get update
+          sudo apt-get install -y cowsay
+
+      - name: Create dragon.txt
+        run: cowsay -f dragon "I am dragon from build job!" > dragon.txt
 
       - name: Upload dragon.txt artifact
         uses: actions/upload-artifact@v4
