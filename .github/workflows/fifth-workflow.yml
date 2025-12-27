@@ -1,0 +1,90 @@
+name: App Services CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Planning step
+        run: |
+          echo "Planning deployment..."
+          echo "Validating configuration files"
+          ls -la
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: plan
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build application
+        run: |
+          echo "Building application..."
+          mkdir -p build
+          echo "App build output" > build/app.txt
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: build/
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          test -f build/app.txt
+          echo "Tests passed ✅"
+
+  stage:
+    name: Stage
+    runs-on: ubuntu-latest
+    needs: test
+    environment: staging
+    steps:
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to STAGING App Service..."
+          echo "Staging deployment complete"
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: stage
+    environment: production
+    steps:
+      - name: Deploy to production App Service
+        run: |
+          echo "Deploying to PRODUCTION App Service..."
+          echo "Production deployment complete 🚀"
+
+  monitor:
+    name: Monitor
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Health check
+        run: |
+          echo "Monitoring application..."
+          echo "Checking app health endpoint"
+          echo "App is healthy ✅"
