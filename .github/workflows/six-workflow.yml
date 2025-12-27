@@ -1,0 +1,59 @@
+name: Dragon Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create dragon.txt
+        run: |
+          echo "🐉 The dragon has been created!" > dragon.txt
+
+      - name: Upload dragon.txt artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dragon-file
+          path: dragon.txt
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download dragon.txt artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dragon-file
+
+      - name: Verify dragon.txt exists
+        run: |
+          if [ -f dragon.txt ]; then
+            echo "✅ dragon.txt exists"
+          else
+            echo "❌ dragon.txt missing"
+            exit 1
+          fi
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Download dragon.txt artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dragon-file
+
+      - name: Read dragon.txt
+        run: |
+          echo "📄 Contents of dragon.txt:"
+          cat dragon.txt
